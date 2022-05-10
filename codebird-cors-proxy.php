@@ -116,6 +116,7 @@ if (isset($headers_received['X-Authorization'])) {
 $body = null;
 if ($method === 'POST') {
     $body = http_get_request_body();
+    error_log($body);
 
     // allow custom content types
     if (isset($_SERVER['CONTENT_TYPE'])) {
@@ -126,7 +127,7 @@ if ($method === 'POST') {
     // check for media parameter
     // for uploading multiple medias, use media_data, see
     // https://dev.twitter.com/docs/api/multiple-media-extended-entities
-
+/*
     if (isset($_POST['media']) && is_array($_POST['media'])) {
         $body = $_POST;
 
@@ -140,7 +141,7 @@ if ($method === 'POST') {
         unset($body['media']);
         $body['media[]'] = '@' . $media_file;
     }
-
+*//*
     // check for other base64 parameters
     foreach ($_POST as $key => $value) {
         $possible_files = [
@@ -158,13 +159,13 @@ if ($method === 'POST') {
             continue;
         }
 
-        // check if valid base64
+      /*  // check if valid base64
         if (base64_decode($mystring, true) === false) {
+            error_log("not base 64 string");
             continue;
         }
-
-        $body[$key] = base64_decode($value);
-    }
+        $body[$key] = $value;
+    }*/
 
 }
 
@@ -216,6 +217,7 @@ $url = 'https://' . $api_host . substr($url, $version_pos);
 $ch = curl_init($url);
 
 if ($method === 'POST') {
+    error_log($body);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 }
