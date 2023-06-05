@@ -180,6 +180,10 @@ if ($version_pos === false) {
     $api_host = 'api.twitter.com';
 }
 if ($version_pos === false) {
+    $version_pos = strpos($url, '/2/');
+    $api_host = 'api.twitter.com';
+}
+if ($version_pos === false) {
     $version_pos = strpos($url, '/oauth/');
 }
 if ($version_pos === false) {
@@ -203,7 +207,7 @@ if ($version_pos === false) {
     header('HTTP/1.1 412 Precondition failed');
     die(
         'This proxy only supports requests to REST API version 1.1, '
-        . 'to the Twitter TON API and to the Twitter Ads API.'
+        . 'version 2.0, to the Twitter TON API and to the Twitter Ads API.'
     );
 }
 // use media endpoint if necessary
