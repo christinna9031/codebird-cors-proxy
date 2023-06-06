@@ -2,6 +2,8 @@
 
 namespace CodeBird;
 
+session_start();
+
 /**
  * Proxy to the Twitter API, adding CORS headers to replies.
  *
@@ -112,6 +114,12 @@ if (isset($headers_received['X-Authorization'])) {
     $headers[] = 'Authorization: ' . $headers_received['X-Authorization'];
 }
 
+// check and save the UserId
+$userId = null;
+if (isset($headers_received['UserId'])) {
+    $userId = $headers_received['UserId'];
+}
+
 // get request body
 $body = null;
 if ($method === 'POST') {
@@ -138,6 +146,23 @@ if ($version_pos === false) {
 if ($version_pos === false) {
     $version_pos = strpos($url, '/2/');
     $api_host = 'api.twitter.com';
+
+    if ($version_pos !== false && $userId) {
+        // Check if the user has made more than 3 requests in the last 24 hours
+        $requests = isset($_SESSION[$userId]) ? $_SESSION[$userId] : [];
+        $requests = array_filter($requests, function ($time) {
+            return $time > time() - 24 * 60 * 60;
+        });
+    
+        if (count($requests) >= 3) {
+            header('HTTP/1.1 429 Too Many Requests');
+            die('Error: quota exceeded');
+        }
+    
+        // Add the current request to the user's request list
+        $requests[] = time();
+        $_SESSION[$userId] = $requests;
+    }
 }
 if ($version_pos === false) {
     $version_pos = strpos($url, '/oauth/');
@@ -172,6 +197,11 @@ if ($is_media_upload) {
     $api_host = 'upload.twitter.com';
 }
 $url = 'https://' . $api_host . substr($url, $version_pos);
+
+// remove the UserId header before sending the request to Twitter API
+$headers = array_filter($headers, function ($header) {
+    return stripos($header, 'UserId:') !== 0;
+});
 
 // send request to Twitter API
 $ch = curl_init($url);
