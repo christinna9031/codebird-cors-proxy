@@ -123,50 +123,6 @@ if ($method === 'POST') {
         $headers[] = 'Content-Type: '
             . str_replace(["\r", "\n"], [' ', ' '], $_SERVER['CONTENT_TYPE']);
     }
-
-    // check for media parameter
-    // for uploading multiple medias, use media_data, see
-    // https://dev.twitter.com/docs/api/multiple-media-extended-entities
-/*
-    if (isset($_POST['media']) && is_array($_POST['media'])) {
-        $body = $_POST;
-
-        // write media file to temp
-        $media_file = tempnam(sys_get_temp_dir(), 'codebird-media-');
-        $fp = fopen($media_file, 'w');
-        fwrite($fp, base64_decode($_POST['media'][0]));
-        fclose($fp);
-
-        // add file to uploads
-        unset($body['media']);
-        $body['media[]'] = '@' . $media_file;
-    }
-*//*
-    // check for other base64 parameters
-    foreach ($_POST as $key => $value) {
-        $possible_files = [
-            // media[] is checked above
-            'image',
-            'banner'
-        ];
-
-        if (! in_array($key, $possible_files)) {
-            continue;
-        }
-
-        // skip arrays
-        if (! is_scalar($value)) {
-            continue;
-        }
-
-      /*  // check if valid base64
-        if (base64_decode($mystring, true) === false) {
-            error_log("not base 64 string");
-            continue;
-        }
-        $body[$key] = $value;
-    }*/
-
 }
 
 // URLs always start with 1.1, oauth or a separate API prefix
